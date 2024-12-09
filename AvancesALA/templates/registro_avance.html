@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Registrar Avance</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Registrar Avance para {{ ala.name }}</h1>
+    <h2>Área: {{ ala.area.name }}</h2>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Nombre del Punto</th>
+                <th>Meta en KM</th>
+                <th>Avance en KM</th>
+                <th>Meta en Volumen</th>
+                <th>Avance en Volumen</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for punto in puntos %}
+                <tr>
+                    <td>{{ punto.cod }}</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td><button class="registrar-avance" data-punto-id="{{ punto.id }}">Registrar Avance</button></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Ventana emergente -->
+    <div id="modal" style="display:none;">
+        <form method="post" id="avance-form">
+            {% csrf_token %}
+            <h2>Registrar Avance</h2>
+            {{ form.as_p }}
+            <button type="submit">Guardar</button>
+            <button type="button" id="close-modal">Cancelar</button>
+        </form>
+    </div>
+
+    <script type="text/javascript">
+        $(".registrar-avance").click(function () {
+            var puntoId = $(this).data('punto-id');
+            $("#avance-form").attr("action", "{% url 'registrar_avance' %}?punto_id=" + puntoId);
+            $("#modal").show();
+        });
+
+        $("#close-modal").click(function () {
+            $("#modal").hide();
+        });
+    </script>
+</body>
+</html>

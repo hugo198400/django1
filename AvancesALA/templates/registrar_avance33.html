@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Registrar Avance</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Registrar Avance Semanal</h1>
+    <form method="post">
+        {% csrf_token %}
+        <label for="area">Área:</label>
+        <select id="area" name="area">
+            <option value="">Seleccione un Área</option>
+            {% for area in areas %}
+                <option value="{{ area.id }}">{{ area.des_aaa }}</option>
+            {% endfor %}
+        </select>
+        <br>
+        <label for="ala">ALA:</label>
+        <select id="ala" name="ala">
+            <option value="">Seleccione un ALA</option>
+        </select>
+        <br>
+        <label for="punto">Punto:</label>
+        <select id="punto" name="punto">
+            <option value="">Seleccione un Punto</option>
+        </select>
+        <br>
+        {{ form.as_p }}
+        <button type="submit">Registrar</button>
+    </form>
+
+    <h2>Puntos de la ALA seleccionada:</h2>
+    <table border="1" id="puntos-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Código</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Aquí se agregarán las filas dinámicamente -->
+        </tbody>
+    </table>
+
+    <script type="text/javascript">
+        $("#area").change(function () {
+            var url = "{% url 'load_alas' %}";
+            var id_aaa = $(this).val();
+            $.ajax({
+                url: url,
+                data: {
+                    'id_aaa': id_aaa
+                },
+                success: function (data) {
+                    $("#ala").html('<option value="">Seleccione un ALA</option>');
+                    $.each(data, function (key, value) {
+                        $("#ala").append('<option value="' + value.id + '">' + value.ala + '</option>');
+                    });
+                }
+            });
+        });
+
+        $("#ala").change(function () {
+            var url = "{% url 'load_puntos' %}";
+            var id_ala = $(this).val();
+            $.ajax({
+                url: url,
+                data: {
+                    'id_ala': id_ala
+                },
+                success: function (data) {
+                    $("#punto").html('<option value="">Seleccione un Punto</option>');
+                    $("#puntos-table tbody").empty();
+                    $.each(data, function (key, value) {
+                        $("#punto").append('<option value="' + value.id + '">' + value.cod + '</option>');
+                        $("#puntos-table tbody").append('<tr><td>' + value.id + '</td><td>' + value.cod + '</td></tr>');
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

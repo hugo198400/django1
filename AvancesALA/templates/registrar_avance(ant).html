@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Registrar Avance</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1; 
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0,0,0); 
+            background-color: rgba(0,0,0,0.4); 
+            padding-top: 60px;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Registrar Avance Semanal</h1>
+    <h2>Área: {{ area.des_aaa }}</h2>
+    <h2>ALA: {{ ala.ala }}</h2>
+
+    <h2>Puntos del ALA</h2>
+    <table border="1" id="puntos-table">
+        <thead>
+            <tr>
+                <th>Código</th>
+                <th>Sector</th>
+                <th>Meta (KM)</th>
+                <th>Avance (KM)</th>
+                <th>Meta (Vol)</th>
+                <th>Avance (Vol)</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for punto in puntos %}
+                <tr>
+                    <td>{{ punto.cod }}</td>
+                    <td>{{ punto.sector }}</td>
+                    <td>{{ punto.meta_km }}</td>
+                    <td>{{ punto.avance_km }}</td>
+                    <td>{{ punto.meta_vol }}</td>
+                    <td>{{ punto.avance_vol }}</td>
+                    <td>{{ punto.estado }}</td>
+                    <td><button class="registrar-avance" data-cod="{{ punto.cod }}" data-sector="{{ punto.sector }}" data-id="{{ punto.id }}">Registrar Avance</button></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Modal -->
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Registrar Avance</h2>
+            <form method="post" id="avance-form">
+                {% csrf_token %}
+                <input type="hidden" id="id_punto" name="id_punto">
+                <p><strong>Código:</strong> <span id="modal-cod"></span></p>
+                <p><strong>Sector:</strong> <span id="modal-sector"></span></p>
+                {{ form.avance_km.label_tag }}{{ form.avance_km }}
+                <br>
+                {{ form.avance_vol.label_tag }}{{ form.avance_vol }}
+                <br>
+                {{ form.estado.label_tag }}{{ form.estado }}
+                <br><br>
+                <button type="submit">Guardar</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            var modal = document.getElementById("myModal");
+            var span = document.getElementsByClassName("close")[0];
+
+            $(".registrar-avance").click(function() {
+                var cod = $(this).data("cod");
+                var sector = $(this).data("sector");
+                var id = $(this).data("id");
+                $("#modal-cod").text(cod);
+                $("#modal-sector").text(sector);
+                $("#id_punto").val(id);
+                modal.style.display = "block";
+            });
+
+            span.onclick = function() {
+                modal.style.display = "none";
+            }
+
+            window.onclick = function(event) {
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            }
+
+            $('#avance-form').submit(function(event) {
+                event.preventDefault();
+                var formData = $(this).serialize();
+                $.post("{% url 'registrar_avance' %}", formData, function(response) {
+                    if (response.success) {
+                        alert("Avance registrado con éxito.");
+                        modal.style.display = "none";
+                        location.reload();
+                    } else {
+                        alert("Error: " + JSON.stringify(response.errors));
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
